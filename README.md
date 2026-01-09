@@ -23,6 +23,12 @@ Bază de date: PostgreSQL rulat în Docker
 
 
 Adminer pentru administrarea bazei de date
+## AuthService porneste cu: 
+docker run -p 8001:8001 \
+  -e DATABASE_URL=... \
+  -e JWT_SECRET=...
+  auth-service:dev
+
 ## Team
 - Constantin Radu
 - Popescu Alexandra
