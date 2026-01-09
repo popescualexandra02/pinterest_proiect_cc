@@ -11,6 +11,6 @@ Cloud-native application inspired by Pinterest, built using:
 🚧 Work in progress
 
 ## Team
-- Nume Student 1
-- Nume Student 2
-- Nume Student 3
+- Constantin Radu
+- Popescu Alexandra
+- Vilcea Stefania
