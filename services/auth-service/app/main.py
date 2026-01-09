@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 from app.database import Base, engine, SessionLocal
 from app.models import User
@@ -59,3 +60,12 @@ def me(creds: HTTPAuthorizationCredentials = Depends(bearer_scheme)):
     token = creds.credentials
     payload = decode_token(token)
     return {"user_id": payload.get("sub")}
+
+@app.get("/ready")
+def ready():
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        return {"status": "ready"}
+    except Exception:
+        return {"status": "not ready"}
