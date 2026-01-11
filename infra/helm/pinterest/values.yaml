@@ -34,3 +34,9 @@ media:
   image: media-service:latest
   port: 8005
   nodePort: 30085
+
+user:
+  enabled: true
+  image: user-service:latest
+  port: 8004
+  nodePort: 30084

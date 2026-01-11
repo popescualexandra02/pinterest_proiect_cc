@@ -87,21 +87,21 @@ services:
       PORT: 8005
     restart: unless-stopped
 
-  # user-service:
-  #   build:
-  #     context: ./services/user-service
-  #   container_name: user-service
-  #   ports:
-  #     - "8004:8004"
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/pinterest
-  #     PORT: 8004
-  #   restart: unless-stopped
+  user-service:
+    build:
+      context: ./services/user-service
+    container_name: user-service
+    ports:
+      - "8004:8004"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/pinterest
+      PORT: 8004
+    restart: unless-stopped
 
 volumes:
   pgdata:

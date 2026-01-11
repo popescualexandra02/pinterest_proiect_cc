@@ -1,0 +1,15 @@
+{{- if .Values.user.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: NodePort
+  selector:
+    app: user-service
+  ports:
+    - port: {{ .Values.user.port }}
+      targetPort: {{ .Values.user.port }}
+      nodePort: {{ .Values.user.nodePort }}
+{{- end }}
