@@ -13,3 +13,16 @@ class BoardOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+from pydantic import BaseModel
+
+class AddPinToBoard(BaseModel):
+    pin_id: int
+
+class BoardPinOut(BaseModel):
+    id: int
+    board_id: int
+    pin_id: int
+
+    class Config:
+        from_attributes = True
