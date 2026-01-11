@@ -225,7 +225,32 @@ minikube service adminer -n pinterest --url
 #### Portainer (Cluster UI)
 
 ```bash
-minikube service portainer -n pinterest --url
+In cluster, Portainer a fost instalat folosind Helm chart-ul oficial (include si agent), intr-un namespace separat `portainer`.
+
+```bash
+kubectl create namespace portainer 2>/dev/null || true
+
+helm repo add portainer https://portainer.github.io/k8s/ || true
+helm repo update
+
+helm upgrade --install portainer portainer/portainer \
+  -n portainer \
+  --set service.type=NodePort \
+  --set service.nodePort=30777
+```
+
+Verificare:
+
+```bash
+kubectl get pods -n portainer
+kubectl get svc -n portainer
+```
+
+Acces UI (Minikube):
+
+```bash
+minikube service portainer -n portainer --url
+```
 ```
 
 ## Team
