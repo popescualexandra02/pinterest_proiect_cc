@@ -1,0 +1,46 @@
+{{- if .Values.auth.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+        - name: auth-service
+          image: {{ .Values.auth.image }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .Values.auth.port }}
+          env:
+            - name: PORT
+              value: {{ .Values.auth.port | quote }}
+            - name: DATABASE_URL
+              value: "postgresql+psycopg2://postgres:postgres@postgres:5432/pinterest"
+            - name: JWT_SECRET
+              value: {{ .Values.auth.jwtSecret | quote }}
+            - name: JWT_ALGORITHM
+              value: {{ .Values.auth.jwtAlgorithm | quote }}
+            - name: JWT_EXP_MINUTES
+              value: {{ .Values.auth.jwtExpMinutes | quote }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.auth.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: {{ .Values.auth.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+{{- end }}

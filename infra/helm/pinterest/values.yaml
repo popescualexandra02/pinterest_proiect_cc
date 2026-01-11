@@ -1,0 +1,36 @@
+namespace: pinterest
+
+postgres:
+  image: postgres:16
+  port: 5432
+  db: pinterest
+  user: postgres
+  password: postgres
+  storage: 1Gi
+
+auth:
+  enabled: true
+  image: auth-service:latest
+  port: 8001
+  nodePort: 30081
+  jwtSecret: "supersecret"
+  jwtAlgorithm: "HS256"
+  jwtExpMinutes: "60"
+
+pin:
+  enabled: true
+  image: pin-service:latest
+  port: 8002
+  nodePort: 30082
+
+board:
+  enabled: true
+  image: board-service:latest
+  port: 8003
+  nodePort: 30083
+
+media:
+  enabled: true
+  image: media-service:latest
+  port: 8005
+  nodePort: 30085

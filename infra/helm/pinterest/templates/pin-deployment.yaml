@@ -1,0 +1,40 @@
+{{- if .Values.pin.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pin-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pin-service
+  template:
+    metadata:
+      labels:
+        app: pin-service
+    spec:
+      containers:
+        - name: pin-service
+          image: {{ .Values.pin.image }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .Values.pin.port }}
+          env:
+            - name: PORT
+              value: {{ .Values.pin.port | quote }}
+            - name: DATABASE_URL
+              value: "postgresql+psycopg2://postgres:postgres@postgres:5432/pinterest"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.pin.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: {{ .Values.pin.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+{{- end }}

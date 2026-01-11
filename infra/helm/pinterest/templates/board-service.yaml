@@ -1,0 +1,15 @@
+{{- if .Values.board.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: board-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: NodePort
+  selector:
+    app: board-service
+  ports:
+    - port: {{ .Values.board.port }}
+      targetPort: {{ .Values.board.port }}
+      nodePort: {{ .Values.board.nodePort }}
+{{- end }}

@@ -1,0 +1,15 @@
+{{- if .Values.pin.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: pin-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: NodePort
+  selector:
+    app: pin-service
+  ports:
+    - port: {{ .Values.pin.port }}
+      targetPort: {{ .Values.pin.port }}
+      nodePort: {{ .Values.pin.nodePort }}
+{{- end }}

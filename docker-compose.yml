@@ -9,6 +9,11 @@ services:
       - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d pinterest"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   adminer:
     image: adminer:latest
@@ -16,6 +21,87 @@ services:
       - "8080:8080"
     depends_on:
       - postgres
+
+  auth-service:
+    build:
+      context: ./services/auth-service
+    container_name: auth-service
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    environment:
+      # IMPORTANT: in container NU folosim localhost, ci numele serviciului "postgres"
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/pinterest
+      PORT: 8001
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  pin-service:
+    build:
+      context: ./services/pin-service
+    container_name: pin-service
+    ports:
+      - "8002:8002"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/pinterest
+      PORT: 8002
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  board-service:
+    build:
+      context: ./services/board-service
+    container_name: board-service
+    ports:
+      - "8003:8003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/pinterest
+      PORT: 8003
+    restart: unless-stopped
+
+  media-service:
+    build:
+      context: ./services/media-service
+    container_name: media-service
+    ports:
+      - "8005:8005"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/pinterest
+      PORT: 8005
+    restart: unless-stopped
+
+  # user-service:
+  #   build:
+  #     context: ./services/user-service
+  #   container_name: user-service
+  #   ports:
+  #     - "8004:8004"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/pinterest
+  #     PORT: 8004
+  #   restart: unless-stopped
 
 volumes:
   pgdata:

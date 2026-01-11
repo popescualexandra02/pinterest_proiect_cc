@@ -1,0 +1,40 @@
+{{- if .Values.media.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: media-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: media-service
+  template:
+    metadata:
+      labels:
+        app: media-service
+    spec:
+      containers:
+        - name: media-service
+          image: {{ .Values.media.image }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .Values.media.port }}
+          env:
+            - name: PORT
+              value: {{ .Values.media.port | quote }}
+            - name: DATABASE_URL
+              value: "postgresql+psycopg2://postgres:postgres@postgres:5432/pinterest"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.media.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: {{ .Values.media.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+{{- end }}

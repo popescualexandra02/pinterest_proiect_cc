@@ -1,0 +1,40 @@
+{{- if .Values.board.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: board-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: board-service
+  template:
+    metadata:
+      labels:
+        app: board-service
+    spec:
+      containers:
+        - name: board-service
+          image: {{ .Values.board.image }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .Values.board.port }}
+          env:
+            - name: PORT
+              value: {{ .Values.board.port | quote }}
+            - name: DATABASE_URL
+              value: "postgresql+psycopg2://postgres:postgres@postgres:5432/pinterest"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.board.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: {{ .Values.board.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+{{- end }}
