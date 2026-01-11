@@ -17,3 +17,6 @@ Thumbs.db
 
 # Node (pentru React mai târziu)
 node_modules/
+
+# Local Kubernetes binary (large)
+/minikube-linux-amd64
