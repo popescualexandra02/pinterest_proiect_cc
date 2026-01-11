@@ -1,10 +1,11 @@
 from fastapi import FastAPI, Depends, Header, HTTPException
 from sqlalchemy.orm import Session
 from typing import Optional
+from sqlalchemy.exc import IntegrityError
 
 from app.database import Base, engine, SessionLocal
-from app.models import Board
-from app.schemas import BoardCreate, BoardOut
+from app.models import Board, BoardPin
+from app.schemas import BoardCreate, BoardOut, AddPinToBoard, BoardPinOut
 from app.config import settings
 
 app = FastAPI(title=settings.service_name)
@@ -55,3 +56,38 @@ def list_boards(
     user_id: int = Depends(get_user_id),
 ):
     return db.query(Board).filter(Board.user_id == user_id).all()
+
+@app.post("/boards/{board_id}/pins", response_model=BoardPinOut)
+def add_pin_to_board(
+    board_id: int,
+    payload: AddPinToBoard,
+    db: Session = Depends(get_db),
+    user_id: int = Depends(get_user_id),
+):
+    # 1) board-ul trebuie să existe și să fie al userului
+    board = db.query(Board).filter(Board.id == board_id, Board.user_id == user_id).first()
+    if not board:
+        raise HTTPException(status_code=404, detail="Board not found")
+
+    link = BoardPin(board_id=board_id, pin_id=payload.pin_id)
+    db.add(link)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="Pin already added to this board")
+
+    db.refresh(link)
+    return link
+
+@app.get("/boards/{board_id}/pins", response_model=list[BoardPinOut])
+def list_pins_in_board(
+    board_id: int,
+    db: Session = Depends(get_db),
+    user_id: int = Depends(get_user_id),
+):
+    board = db.query(Board).filter(Board.id == board_id, Board.user_id == user_id).first()
+    if not board:
+        raise HTTPException(status_code=404, detail="Board not found")
+
+    return db.query(BoardPin).filter(BoardPin.board_id == board_id).all()
